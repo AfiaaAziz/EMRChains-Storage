@@ -1,105 +1,119 @@
 
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const express = require("express");
+const cors = require("cors");
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
 
 const app = express();
+const PORT = 5000;
+const STORAGE_DIRECTORY = "storage"; 
+
+
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 5000;
-const STORAGE_DIR = path.resolve(process.env.STORAGE_DIR || path.join(__dirname, 'storage'));
-
-
-if (!fs.existsSync(STORAGE_DIR)) fs.mkdirSync(STORAGE_DIR, { recursive: true });
-
-
-function safeJoin(base, userPath = '') {
-  const target = path.join(base, userPath || '');
-  const resolved = path.resolve(target);
-  if (!resolved.startsWith(base)) throw new Error('Invalid path');
-  return resolved;
-}
-
-
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    try {
-      const rel = req.query.path || '';
-      const dest = safeJoin(STORAGE_DIR, rel);
-      if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
-      cb(null, dest);
-    } catch (err) {
-      cb(err);
-    }
+    const relativePath = req.query.path || "";
+    const absolutePath = path.join(__dirname, '..', STORAGE_DIRECTORY, relativePath);
+    fs.mkdirSync(absolutePath, { recursive: true });
+    cb(null, absolutePath);
   },
   filename: (req, file, cb) => {
-    
     cb(null, file.originalname);
-  }
+  },
 });
-const upload = multer({ storage, limits: { fileSize: 200 * 1024 * 1024 } }); // 200MB
+
+const upload = multer({ storage });
 
 
-app.get('/list', (req, res) => {
+app.get("/list", (req, res) => {
+  const relativePath = req.query.path || "";
+
+  const absolutePath = path.join(__dirname, '..', STORAGE_DIRECTORY, relativePath);
+
+  if (!fs.existsSync(absolutePath)) {
+    if (relativePath === "") {
+        fs.mkdirSync(absolutePath, { recursive: true });
+        return res.json([]); 
+    }
+    return res.status(404).json({ message: "Directory not found" });
+  }
+
   try {
-    const rel = req.query.path || '';
-    const dir = safeJoin(STORAGE_DIR, rel);
-    if (!fs.existsSync(dir)) return res.json([]);
-    const names = fs.readdirSync(dir);
-    const items = names.map(name => {
-      const full = path.join(dir, name);
-      const stat = fs.lstatSync(full);
+    const items = fs.readdirSync(absolutePath).map((item) => {
+      const itemPath = path.join(absolutePath, item);
+      const stats = fs.statSync(itemPath);
       return {
-        name,
-        isFolder: stat.isDirectory(),
-        size: stat.isFile() ? stat.size : null,
-        mtime: stat.mtime
+        name: item,
+        isFolder: stats.isDirectory(),
+        size: stats.size,
+        mtime: stats.mtime,
       };
     });
     res.json(items);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to read directory", error });
   }
 });
 
 
-app.post('/create-folder', (req, res) => {
+app.post("/create-folder", (req, res) => {
+  const { folderName } = req.body;
+  const relativePath = req.query.path || "";
+  const absolutePath = path.join(__dirname, '..', STORAGE_DIRECTORY, relativePath, folderName);
+
+  if (fs.existsSync(absolutePath)) {
+    return res.status(409).json({ message: "Folder already exists" });
+  }
   try {
-    const rel = req.query.path || '';
-    const { folderName } = req.body;
-    if (!folderName) return res.status(400).json({ message: 'folderName required' });
-    const newFolder = safeJoin(STORAGE_DIR, path.join(rel, folderName));
-    if (fs.existsSync(newFolder)) return res.status(400).json({ message: 'Folder exists' });
-    fs.mkdirSync(newFolder, { recursive: true });
-    res.json({ message: 'Folder created' });
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+    fs.mkdirSync(absolutePath);
+    res.status(201).json({ message: "Folder created successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to create folder", error });
   }
 });
 
 
-app.post('/upload', upload.single('file'), (req, res) => {
-  if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
-  res.json({ message: 'Uploaded', file: { originalname: req.file.originalname } });
+app.post("/upload", upload.single("file"), (req, res) => {
+  res.status(201).json({ message: "File uploaded successfully" });
 });
 
 
-app.get('/download', (req, res) => {
+app.get("/download", (req, res) => {
+  const relativePath = req.query.path || "";
+
+  const absolutePath = path.join(__dirname, '..', STORAGE_DIRECTORY, relativePath);
+
+  if (fs.existsSync(absolutePath)) {
+    res.download(absolutePath);
+  } else {
+    res.status(404).json({ message: "File not found" });
+  }
+});
+
+
+app.delete("/delete", (req, res) => {
+  const relativePath = req.query.path || "";
+  const absolutePath = path.join(__dirname, '..', STORAGE_DIRECTORY, relativePath);
+
+  if (!fs.existsSync(absolutePath)) {
+    return res.status(404).json({ message: "Item not found" });
+  }
   try {
-    const rel = req.query.path;
-    if (!rel) return res.status(400).json({ message: 'path required' });
-    const full = safeJoin(STORAGE_DIR, rel);
-    if (!fs.existsSync(full) || fs.lstatSync(full).isDirectory()) return res.status(404).json({ message: 'Not found' });
-    res.download(full);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+    const stats = fs.statSync(absolutePath);
+    if (stats.isDirectory()) {
+      fs.rmdirSync(absolutePath, { recursive: true });
+    } else {
+      fs.unlinkSync(absolutePath);
+    }
+    res.json({ message: "Item deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete item", error });
   }
 });
 
-app.get('/', (req, res) => res.json({ ok: true }));
-
-app.listen(PORT, () => console.log(`Backend listening on http://localhost:${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
