@@ -1,11 +1,10 @@
-// client/src/App.jsx
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { FiFolder, FiFile, FiDownload, FiTrash2, FiUpload, FiPlus, FiLoader, FiChevronRight, FiHome } from "react-icons/fi";
 
 const API = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
-// --- BREADCRUMBS COMPONENT ---
+
 function Breadcrumbs({ path, onNavigate }) {
   const parts = path ? path.split("/") : [];
   return (
@@ -29,19 +28,18 @@ function Breadcrumbs({ path, onNavigate }) {
   );
 }
 
-// --- MAIN APP COMPONENT ---
 export default function App() {
   const [items, setItems] = useState([]);
   const [path, setPath] = useState("");
   const [folderName, setFolderName] = useState("");
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const fileInputRef = useRef(null); // Ref for hidden file input
+  const fileInputRef = useRef(null); 
 
   const fetchList = async (p = path) => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API}/list`, { params: { path: p } });
+      const res = await axios.get(`${API}/list`, { params: { path: p } }); 
       setItems(res.data);
     } catch (err) {
       alert(err?.response?.data?.message || err.message);
@@ -88,7 +86,7 @@ export default function App() {
     } catch (err) {
       alert(err?.response?.data?.message || err.message);
     } finally {
-        // Clear the file input
+        
         if(fileInputRef.current) fileInputRef.current.value = "";
     }
   };
