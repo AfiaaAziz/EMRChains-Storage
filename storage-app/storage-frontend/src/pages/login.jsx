@@ -16,9 +16,7 @@ const Login = ({ onLoginSuccess }) => {
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
-
     const { username, password } = loginState;
-
     if (username === "Afia" && password === "123") {
       onLoginSuccess();
     } else {
@@ -27,21 +25,25 @@ const Login = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="w-screen h-screen bg-slate-100 flex justify-center items-center">
-      <div className="w-full max-w-4xl h-auto md:h-[550px] flex flex-col md:flex-row bg-white rounded-2xl shadow-2xl overflow-hidden">
-        <div className="w-full md:w-[45%] h-full bg-white flex flex-col justify-center items-center p-8">
-          <img src={Logo} alt="Logo" className="w-48 object-contain mb-6" />
-          <h1 className="text-3xl font-bold tracking-wider text-center text-emerald-600">
+    <div className="w-screen min-h-screen bg-slate-100 flex justify-center items-center p-4">
+      
+      <div className="w-full max-w-4xl min-h-[500px] md:h-[550px] flex flex-col md:flex-row bg-white rounded-2xl shadow-2xl overflow-hidden">
+        
+        <div className="w-full md:w-[45%] h-full bg-white flex flex-col justify-center items-center p-6 text-center md:p-8">
+          <img src={Logo} alt="Logo" className="w-32 sm:w-40 md:w-48 object-contain mb-4 md:mb-6" />
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-wider text-emerald-600">
             EMRChains
           </h1>
         </div>
 
-        <div className="w-full md:w-[55%] h-full flex flex-col justify-center items-center p-8 sm:p-12">
+       
+        <div className="w-full md:w-[55%] h-full flex flex-col justify-center items-center p-6 sm:p-8 md:p-12">
           <div className="w-full max-w-md">
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+          
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
               Welcome Back!
             </h2>
-            <p className="text-gray-500 mb-8"></p>
+            <p className="text-gray-500 mb-6 sm:mb-8">Sign in to continue.</p>
 
             <form
               onSubmit={handleLoginSubmit}
