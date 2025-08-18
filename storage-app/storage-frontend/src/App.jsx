@@ -19,7 +19,6 @@ function App() {
     setIsAuthenticated(true);
   };
 
-  // Add this function to handle logout
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
     setIsAuthenticated(false);
