@@ -20,7 +20,6 @@ const Login = ({ onLoginSuccess }) => {
     const { username, password } = loginState;
 
     if (username === "Afia" && password === "123") {
-      
       onLoginSuccess();
     } else {
       alert("Invalid username or password. Please try again.");
