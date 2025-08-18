@@ -11,8 +11,8 @@ import {
   FiChevronRight,
   FiHome,
   FiLogOut,
-  FiFileText, 
-  FiFolderPlus, 
+  FiFileText,
+  FiFolderPlus,
 } from "react-icons/fi";
 
 const API_URL = import.meta.env.VITE_API_BASE || "http://localhost:5000";
@@ -55,7 +55,7 @@ export default function Home({ onLogout }) {
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
 
- 
+
   const fetchList = async (currentPath = path) => {
     setLoading(true);
     try {
@@ -128,7 +128,7 @@ export default function Home({ onLogout }) {
     const newPath = path ? `${path}/${folderName}` : folderName;
     navigateTo(newPath);
   };
-  
+
   const downloadFile = (fileName) => {
     const filePath = path ? `${path}/${fileName}` : fileName;
     window.open(`${API_URL}/download?path=${encodeURIComponent(filePath)}`, "_blank");
@@ -142,7 +142,7 @@ export default function Home({ onLogout }) {
   return (
     <div className="bg-slate-100 min-h-screen font-sans">
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        
+
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800 mb-2 sm:mb-0">
             EMRChains Storage
@@ -164,10 +164,10 @@ export default function Home({ onLogout }) {
             </h2>
             <div className="flex">
               <input
-                className="flex-1 border-gray-300 border px-4 py-2 rounded-l-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition"
+                className="flex-1 border-gray-300 border px-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition"
                 value={folderName}
                 onChange={(e) => setFolderName(e.target.value)}
-                placeholder="File Name"
+                placeholder="File Name" 
                 onKeyUp={(e) => e.key === 'Enter' && createFolder()}
               />
               <button
@@ -180,7 +180,7 @@ export default function Home({ onLogout }) {
           </div>
 
           <div className="p-5 bg-white rounded-xl shadow-sm flex flex-col justify-center">
-             <h2 className="font-semibold text-gray-700 mb-3 flex items-center text-lg">
+            <h2 className="font-semibold text-gray-700 mb-3 flex items-center text-lg">
               <FiUpload className="mr-3 text-blue-500" />
               Upload a File
             </h2>
@@ -199,7 +199,7 @@ export default function Home({ onLogout }) {
 
         <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
           <Breadcrumbs path={path} onNavigate={navigateTo} />
-          
+
           {loading ? (
             <div className="flex justify-center items-center py-16">
               <FiLoader className="animate-spin text-5xl text-emerald-500" />
@@ -217,8 +217,8 @@ export default function Home({ onLogout }) {
                   key={item.name}
                   className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-3 px-2 rounded-lg hover:bg-slate-50 transition-colors duration-150"
                 >
-                  <div 
-                    className="flex items-center space-x-4 flex-grow cursor-pointer" 
+                  <div
+                    className="flex items-center space-x-4 flex-grow cursor-pointer"
                     onClick={() => item.isFolder && openFolder(item.name)}
                   >
                     <div className="text-2xl">
@@ -231,7 +231,7 @@ export default function Home({ onLogout }) {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2 mt-2 sm:mt-0 self-end sm:self-center">
                     {item.isFolder ? (
                       <button
