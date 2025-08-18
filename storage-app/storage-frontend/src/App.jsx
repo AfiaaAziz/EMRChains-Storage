@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import Login from "./pages/login";
 import Home from "./pages/Home";
-import "./App.css"; 
+import "./App.css";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -19,6 +19,11 @@ function App() {
     setIsAuthenticated(true);
   };
 
+  // Add this function to handle logout
+  const handleLogout = () => {
+    localStorage.removeItem("isAuthenticated");
+    setIsAuthenticated(false);
+  };
 
   return (
     <Router>
@@ -27,19 +32,19 @@ function App() {
           path="/login"
           element={
             isAuthenticated ? (
-              <Navigate to="/" /> 
+              <Navigate to="/" />
             ) : (
               <Login onLoginSuccess={handleLoginSuccess} />
             )
           }
         />
         <Route
-          path="/*" 
+          path="/*"
           element={
             isAuthenticated ? (
-              <Home />
+              <Home onLogout={handleLogout} />
             ) : (
-              <Navigate to="/login" /> 
+              <Navigate to="/login" />
             )
           }
         />
