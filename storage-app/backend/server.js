@@ -1,4 +1,3 @@
-
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
@@ -7,16 +6,25 @@ const path = require("path");
 
 const app = express();
 const PORT = 5000;
-const STORAGE_DIRECTORY = "storage"; 
-
+const STORAGE_DIRECTORY = "storage";
 
 app.use(cors());
 app.use(express.json());
 
+
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "Storage API is running correctly." });
+});
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const relativePath = req.query.path || "";
-    const absolutePath = path.join(__dirname, '..', STORAGE_DIRECTORY, relativePath);
+    const absolutePath = path.join(
+      __dirname,
+      "..",
+      STORAGE_DIRECTORY,
+      relativePath
+    );
     fs.mkdirSync(absolutePath, { recursive: true });
     cb(null, absolutePath);
   },
@@ -27,16 +35,20 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-
 app.get("/list", (req, res) => {
   const relativePath = req.query.path || "";
 
-  const absolutePath = path.join(__dirname, '..', STORAGE_DIRECTORY, relativePath);
+  const absolutePath = path.join(
+    __dirname,
+    "..",
+    STORAGE_DIRECTORY,
+    relativePath
+  );
 
   if (!fs.existsSync(absolutePath)) {
     if (relativePath === "") {
-        fs.mkdirSync(absolutePath, { recursive: true });
-        return res.json([]); 
+      fs.mkdirSync(absolutePath, { recursive: true });
+      return res.json([]);
     }
     return res.status(404).json({ message: "Directory not found" });
   }
@@ -58,11 +70,16 @@ app.get("/list", (req, res) => {
   }
 });
 
-
 app.post("/create-folder", (req, res) => {
   const { folderName } = req.body;
   const relativePath = req.query.path || "";
-  const absolutePath = path.join(__dirname, '..', STORAGE_DIRECTORY, relativePath, folderName);
+  const absolutePath = path.join(
+    __dirname,
+    "..",
+    STORAGE_DIRECTORY,
+    relativePath,
+    folderName
+  );
 
   if (fs.existsSync(absolutePath)) {
     return res.status(409).json({ message: "Folder already exists" });
@@ -75,16 +92,19 @@ app.post("/create-folder", (req, res) => {
   }
 });
 
-
 app.post("/upload", upload.single("file"), (req, res) => {
   res.status(201).json({ message: "File uploaded successfully" });
 });
 
-
 app.get("/download", (req, res) => {
   const relativePath = req.query.path || "";
 
-  const absolutePath = path.join(__dirname, '..', STORAGE_DIRECTORY, relativePath);
+  const absolutePath = path.join(
+    __dirname,
+    "..",
+    STORAGE_DIRECTORY,
+    relativePath
+  );
 
   if (fs.existsSync(absolutePath)) {
     res.download(absolutePath);
@@ -93,10 +113,14 @@ app.get("/download", (req, res) => {
   }
 });
 
-
 app.delete("/delete", (req, res) => {
   const relativePath = req.query.path || "";
-  const absolutePath = path.join(__dirname, '..', STORAGE_DIRECTORY, relativePath);
+  const absolutePath = path.join(
+    __dirname,
+    "..",
+    STORAGE_DIRECTORY,
+    relativePath
+  );
 
   if (!fs.existsSync(absolutePath)) {
     return res.status(404).json({ message: "Item not found" });

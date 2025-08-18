@@ -41,7 +41,7 @@ const Login = ({ onLoginSuccess }) => {
             <h2 className="text-3xl font-bold text-gray-800 mb-2">
               Welcome Back!
             </h2>
-            <p className="text-gray-500 mb-8">Sign in to continue.</p>
+            <p className="text-gray-500 mb-8"></p>
 
             <form
               onSubmit={handleLoginSubmit}
