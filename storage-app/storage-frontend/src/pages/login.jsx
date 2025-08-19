@@ -30,10 +30,10 @@ const Login = ({ onLoginSuccess }) => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // If login successful
+        
         onLoginSuccess();
       } else {
-        // If login failed
+        
         alert(
           data.message || "Invalid username or password. Please try again."
         );

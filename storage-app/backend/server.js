@@ -69,19 +69,17 @@ app.get("/list", (req, res) => {
   }
 });
 
-// API to validate login
+
 app.post("/login", (req, res) => {
 
   const STATIC_USERNAME = "EMRChains";
   const STATIC_PASSWORD = "1234";
   const { username, password } = req.body;
 
-  // Check if username & password match
   if (username === STATIC_USERNAME && password === STATIC_PASSWORD) {
     return res.json({ success: true, message: "Login successful" });
   }
 
-  // If not matched
   return res
     .status(401)
     .json({ success: false, message: "Invalid credentials" });
