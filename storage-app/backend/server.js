@@ -11,7 +11,6 @@ const STORAGE_DIRECTORY = "storage";
 app.use(cors());
 app.use(express.json());
 
-
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Storage API is running correctly." });
 });
@@ -68,6 +67,24 @@ app.get("/list", (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Failed to read directory", error });
   }
+});
+
+// API to validate login
+app.post("/login", (req, res) => {
+
+  const STATIC_USERNAME = "EMRChains";
+  const STATIC_PASSWORD = "1234";
+  const { username, password } = req.body;
+
+  // Check if username & password match
+  if (username === STATIC_USERNAME && password === STATIC_PASSWORD) {
+    return res.json({ success: true, message: "Login successful" });
+  }
+
+  // If not matched
+  return res
+    .status(401)
+    .json({ success: false, message: "Invalid credentials" });
 });
 
 app.post("/create-folder", (req, res) => {
